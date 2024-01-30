@@ -4,21 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Utilisateur;
-use App\Models\User;
+// use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class Usercontroller extends Controller
 {
-    public function redirect()
-    {
-        $usertype=Auth::user()->usertype;
-        if($usertype=='1')
+    // public function redirect()
+    // {
+    //     $usertype=Auth::user()->usertype;
+    //     if($usertype=='1')
 
-        {
-            return view('admin.home');
-        }
-    }
+    //     {
+    //         return view('admin.home');
+    //     }
+    // }
 
 
     public function getUsers() {

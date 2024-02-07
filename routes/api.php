@@ -17,18 +17,28 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get("/users", [Usercontroller::class,'getUsers']);
-Route::get("/users/{id}", [Usercontroller::class,'getUser']);
-Route::post("/users/register",[Usercontroller::class,'register']);
-Route::post("/users/login",[Usercontroller::class,'login']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::post("/users/register",[Usercontroller::class,'register']);
+Route::post("/login",[Usercontroller::class,'login']);
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {  
     return $request->user();
 });
 
 
-Route::get('/all/sondages', [SondageController::class, 'index']);
-Route::get('/sondages/{id}', [SondageController::class, 'show']);
-Route::post('/sondages', [SondageController::class, 'store']);
-Route::put('/update/sondages/{id}', [SondageController::class, 'update']);
-Route::delete('/delete/sondages/{id}', [SondageController::class, 'destroy']);
+// Route::get('/all/sondages', [SondageController::class, 'index']);
+// Route::get('/sondages/{id}', [SondageController::class, 'show']);
+// Route::post('/sondages', [SondageController::class, 'store']);
+// Route::put('/update/sondages/{id}', [SondageController::class, 'update']);
+// Route::delete('/delete/sondages/{id}', [SondageController::class, 'destroy']);
+
+Route::middleware('auth:sanctum')->group(function() {
+    Route::get('/utilisateurs', [Usercontroller::class, 'index']);
+    Route::post('/sondage/create', [SondageController::class, 'store']);
+    Route::get('/sondage/liste', [SondageController::class, 'sondage']);
+    Route::get('/sondage/{sondage}', [SondageController::class, 'singleSondage']);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    
+});

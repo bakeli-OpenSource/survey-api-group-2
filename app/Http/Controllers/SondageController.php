@@ -1,188 +1,73 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Sondage;
+use Exception;
 
+use App\Models\Sondage;
+use illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\SondageRequest;
 
 class SondageController extends Controller
-{
-    // get all
-    public function index()
+ {
+
+    public function store(SondageRequest $request)
+    {
+        try 
         {
-            $sondages = Sondage::all();
-            return response()->json($sondages, 200);
-        }
-// get ID
-    public function show($id)
-       {
-        $sondage = Sondage::find($id);
+        $sondage = new Sondage();
+        $sondage->titre = $request->titre; 
+        $sondage->option = json_encode($request->option);
+        $sondage->utilisateur_id = Auth::user()->id;
+        $sondage->save();  
 
-        if (!$sondage) {
-            return response()->json(["message' => 'Sondage non trouvé avec l'ID $id"], 404);
-        }
+        return response()->json([
+            'status_code' => 200,
+            'status_message' => "Sondage créé avec succès",
+            'sondage' => $sondage,
+            'link' => url("api/sondage/{$sondage->id}")
+            
+        ]);
 
-        return response()->json($sondage, 200);
-       }
-//   Post Sondage
-    public function store(Request $request)
-        {
-            // Validation des données
-            $sondageDonnee = $request->validate([
-                'question' => 'required|string',
-                'options' => 'required|array|min:2',
-                'options.*' => 'string',
-            ]);
-
-            $sondages = Sondage::create([
-                "question"=> $sondageDonnee["question"],
-                "options"=> $sondageDonnee["options"],
-            ]);
-            return response($sondages,201);
-        }
-
-    // Update Sondage 
-    public function update(Request $request, $id)
-       {
-    // Validation des données
-    $sondageDonnee = $request->validate([
-        'question' => 'required|string',
-        'options' => 'required|array|min:2',
-        'options.*' => 'string', 
-    ]);
-
-    $sondages = Sondage::findOrFail($id);
-
-    // Mise à jour des données du sondage
-    $sondages->update([
-        "question" => $sondageDonnee["question"],
-        "options" => $sondageDonnee["options"],
-    ]);
-
-    return response()->json($sondages, 200);
-        }
-
-        // Delete Sondage
-        public function destroy($id)
-            {
-                $sondages = Sondage::findOrFail($id);
-
-                $sondages->delete();
-
-               return response()->json(['message' => 'Sondage supprimé avec succès'], 200);
-        
+    } catch (Exception $e) {
+        return response()->json($e);
+    }
     }
 
-}
+     // liste des sondages d'un utilisateur
+     public function sondage()
+     {
+         try 
+         {
+         $sond = Sondage::where('utilisateur_id', Auth::user()->id)->get();
+         return response()->json([
+             'status_code' => 200,
+             'status_message' => "Liste de mes sondages créés",
+             'sondage' => $sond
+             
+         ]);
+ 
+     } catch (Exception $e) {
+         return response()->json($e);
+     }
+     }
+ // pour l'affichage d'un sondage
+ public function singleSondage(Sondage $sondage)
+ { 
+     try 
+     {
+         $son = Sondage::where('id', $sondage->id)->firstOrFail();
+         return response()->json([
+         'status_code' => 200,
+         'status_message' => "sondage généré",
+         'titre' => $son->titre,
+         'option' => explode(',', $son->option)
+         
+     ]);
 
+ } catch (Exception $e) {
+     return response()->json($e);
+ }
+ }
 
-
-// /**
-//      * Récupère la liste des sondages.
-//      *
-//      * @return \Illuminate\Http\Response
-//      */
-//     public function index()
-//     {
-//         $sondages = Sondage::all();
-//         return response()->json($sondages, 200);
-//     }
-
-//     /**
-//      * Récupère les détails d'un sondage spécifique.
-//      *
-//      * @param  int  $id
-//      * @return \Illuminate\Http\Response
-//      */
-//     public function show($id)
-//     {
-//         $sondage = Sondage::find($id);
-
-//         if (!$sondage) {
-//             return response()->json(['message' => 'Sondage non trouvé'], 404);
-//         }
-
-//         return response()->json($sondage, 200);
-//     }
-
-//     /**
-//      * Crée un nouveau sondage.
-//      *
-//      * @param  \Illuminate\Http\Request  $request
-//      * @return \Illuminate\Http\Response
-//      */
-//     public function store(Request $request)
-//     {
-//         // Validation des données
-//         $validator = Validator::make($request->all(), [
-//             'question' => 'required|string',
-//             'options' => 'required|array|min:2',
-//         ]);
-
-//         if ($validator->fails()) {
-//             return response()->json(['error' => $validator->errors()], 400);
-//         }
-
-//         // Création du sondage
-//         $sondage = Sondage::create([
-//             'question' => $request->input('question'),
-//             'options' => $request->input('options'),
-//         ]);
-
-//         return response()->json($sondage, 201);
-//     }
-
-//     /**
-//      * Met à jour un sondage existant.
-//      *
-//      * @param  \Illuminate\Http\Request  $request
-//      * @param  int  $id
-//      * @return \Illuminate\Http\Response
-//      */
-//     public function update(Request $request, $id)
-//     {
-//         // Validation des données
-//         $validator = Validator::make($request->all(), [
-//             'question' => 'required|string',
-//             'options' => 'required|array|min:2',
-//         ]);
-
-//         if ($validator->fails()) {
-//             return response()->json(['error' => $validator->errors()], 400);
-//         }
-
-//         // Mise à jour du sondage
-//         $sondage = Sondage::find($id);
-
-//         if (!$sondage) {
-//             return response()->json(['message' => 'Sondage non trouvé'], 404);
-//         }
-
-//         $sondage->update([
-//             'question' => $request->input('question'),
-//             'options' => $request->input('options'),
-//         ]);
-
-//         return response()->json($sondage, 200);
-//     }
-
-//     /**
-//      * Supprime un sondage spécifique.
-//      *
-//      * @param  int  $id
-//      * @return \Illuminate\Http\Response
-//      */
-//     public function destroy($id)
-//     {
-//         $sondage = Sondage::find($id);
-
-//         if (!$sondage) {
-//             return response()->json(['message' => 'Sondage non trouvé'], 404);
-//         }
-
-//         $sondage->delete();
-
-//         return response()->json(['message' => 'Sondage supprimé avec succès'], 204);
-//     }
-
+ }

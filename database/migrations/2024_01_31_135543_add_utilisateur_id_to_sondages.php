@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sondages', function (Blueprint $table) {
-            $table->id();
-            $table->string('titre'); // Stockage des options en tant que JSON
-            $table->json('option');
-            $table->timestamps();
+        Schema::table('sondages', function (Blueprint $table) {
+            $table->unsignedBigInteger('utilisateur_id');
+            $table->foreign('utilisateur_id')->references('id')->on('utilisateurs');
         });
     }
 
@@ -24,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sondages');
+        Schema::table('sondages', function (Blueprint $table) {
+            $table->dropColumn('user_id');
+        });
     }
 };

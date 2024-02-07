@@ -4,19 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Sondage extends Model
 {
     use HasFactory;
     
     protected $fillable = [
-        'question',
-        'options', // Assurez-vous que 'options' est dans $fillable
-        // ... autres champs ...
+        'titre',
+        'option',
+        'utilisateur_id'
     ];
 
-    protected $casts = [
-        'options' => 'array', // Assurez-vous que 'options' est casté comme un tableau
-        // ... autres casts ...
-    ];
+    protected function option(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => json_decode($value, true),
+            set: fn ($value) => json_encode($value),
+        );
+    }
+    
 }

@@ -41,15 +41,30 @@ class Usercontroller extends Controller
 
 public function login(LoginRequestUser $request)
 {
+    // if (Auth::guard('utilisateur')->attempt(['email' => $request['email'], 'password' => $request['password']])) {
+    //     $user = Utilisateur::where('email', $request['email'])->firstOrFail();
+
+    //     return response()->json([
+    //         'status_code' => 200,
+    //         'status_message' => "Connexion réussie",
+    //         'user' => $user,
+    //     ]); 
+    // } else {
+    //     return response()->json([
+    //         'status_code' => 403,
+    //         'status_message' => "Informations de connexion incorrectes",
+    //     ]);
+    // }
+
     if (Auth::guard('utilisateur')->attempt(['email' => $request['email'], 'password' => $request['password']])) {
         $user = Utilisateur::where('email', $request['email'])->firstOrFail();
-        // $token = $user->createToken('MA_CLE_DE_SECURITE')->plainTextToken;
+        $token = $user->createToken('MA_CLE_DE_SECURITE')->plainTextToken;
 
         return response()->json([
             'status_code' => 200,
             'status_message' => "Connexion réussie",
             'user' => $user,
-            // 'token' => $token
+            'token' => $token
         ]); 
     } else {
         return response()->json([
@@ -60,34 +75,39 @@ public function login(LoginRequestUser $request)
     
 }
 
-public function index(Request $request)
+public function index($id)
     {
-        try {
-            $query = Utilisateur::query();
-            $perPage = 2;
-            $page = $request->input('page', 1);
-            $search = $request->input('search');
+        $user = Utilisateur::find($id);
 
-            if ($search) {
-                $query->whereRaw("email LIKE '%" . $search . "%'");
-            }
-            $total = $query->count();
-            $result = $query->offset(($page - 1) * $perPage)->limit($perPage)->get(); 
-
+        if ($user) {
             return response()->json([
                 'status_code' => 200,
-                'status_message' => 'Liste des utilisateurs',
-                'current_page' => $page,
-                'last_page' => ceil($total / $perPage),
-                'items' => $result
+                'status_message' => 'Détails de l\'utilisateur récupérés avec succès',
+                'user' => $user,
             ]);
-            
-        } catch (Exception $e) {
-            return response()->json($e);
+        } else {
+            return response()->json([
+                'status_code' => 404,
+                'status_message' => 'Utilisateur non trouvé',
+            ]);
         }
     }
 
-}
+
+ public function all()
+    {
+        $users = Utilisateur::all();
+
+        return response()->json([
+            'status_code' => 200,
+            'status_message' => 'Liste de tous les utilisateurs connectés',
+            'users' => $users,
+        ]);
+    }
+    
+    }
+
+
     
 
 

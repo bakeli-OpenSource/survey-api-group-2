@@ -16,10 +16,10 @@ class SondageController extends Controller
         try 
         {
         $sondage = new Sondage();
-        $sondage->titre = $request->titre; 
+        $sondage->titre = $request->titre;
         $sondage->option = json_encode($request->option);
         $sondage->utilisateur_id = Auth::user()->id;
-        $sondage->save();  
+        $sondage->save();
 
         return response()->json([
             'status_code' => 200,

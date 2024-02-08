@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("/users/register",[Usercontroller::class,'register']);
 Route::post("/login",[Usercontroller::class,'login']);
+Route::get('/all/users', [Usercontroller::class, 'all']);
+Route::get('/user/{id}',[Usercontroller::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {  
     return $request->user();
@@ -33,12 +35,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::delete('/delete/sondages/{id}', [SondageController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function() {
-    Route::get('/utilisateurs', [Usercontroller::class, 'index']);
     Route::post('/sondage/create', [SondageController::class, 'store']);
     Route::get('/sondage/liste', [SondageController::class, 'sondage']);
     Route::get('/sondage/{sondage}', [SondageController::class, 'singleSondage']);
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    
     
 });
